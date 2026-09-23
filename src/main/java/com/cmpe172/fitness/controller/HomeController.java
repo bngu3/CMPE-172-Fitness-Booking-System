@@ -6,8 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * Simple home endpoint - the second of the two required Milestone 1
- * endpoints. Confirms the app is running and layered correctly.
+ * Simple home endpoint - Confirms the app is running and layered correctly.
  */
 @RestController
 public class HomeController {

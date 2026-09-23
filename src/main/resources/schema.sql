@@ -1,9 +1,3 @@
--- =====================================================================
--- CMPE 172 Milestone 1 - Fitness Studio Booking System
--- schema.sql : creates all tables + the double-booking guard
--- Target DB: PostgreSQL
--- =====================================================================
-
 DROP TABLE IF EXISTS appointments CASCADE;
 DROP TABLE IF EXISTS availability_slots CASCADE;
 DROP TABLE IF EXISTS services CASCADE;
@@ -49,8 +43,7 @@ CREATE TABLE services (
 -- ---------------------------------------------------------------------
 -- availability_slots: a specific bookable time window a provider opens
 -- for a given service.
---
--- Double-booking guard #1:
+-- Double booking guard here
 -- A provider cannot open two identical slots (same provider, same date,
 -- same start time). This protects the provider's own calendar.
 -- ---------------------------------------------------------------------
@@ -69,7 +62,7 @@ CREATE TABLE availability_slots (
 -- ---------------------------------------------------------------------
 -- appointments: a customer's booking of a specific availability_slot
 --
--- Double-booking guard #2 (the critical one):
+-- Double booking guard here
 -- slot_id is UNIQUE here, so the database physically cannot allow two
 -- appointment rows to reference the same slot. Even under concurrent
 -- requests, the second INSERT for the same slot_id will fail with a
@@ -85,7 +78,6 @@ CREATE TABLE appointments (
     booked_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- Helpful indexes for the browse/filter feature (feature #2)
 CREATE INDEX idx_slots_provider ON availability_slots(provider_id);
 CREATE INDEX idx_slots_service  ON availability_slots(service_id);
 CREATE INDEX idx_slots_date     ON availability_slots(slot_date);

@@ -1,8 +1,3 @@
--- =====================================================================
--- CMPE 172 Milestone 1 - Fitness Studio Booking System
--- seed.sql : sample providers, services, and availability slots
--- =====================================================================
-
 -- Sample customers
 INSERT INTO users (full_name, email, password) VALUES
 ('Alex Chen', 'alex.chen@example.com', 'password123'),
