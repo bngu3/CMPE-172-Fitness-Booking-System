@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fitness Studio</title>
+    <style>
+        body { font: 16px system-ui, sans-serif; max-width: 760px; margin: 8vh auto; padding: 0 1rem; color: #20242a; }
+        a, button { display: inline-block; margin: .4rem .4rem .4rem 0; padding: .7rem 1rem; border-radius: 6px; }
+        a { background: #2457c5; color: white; text-decoration: none; }
+        button { font: inherit; border: 0; cursor: pointer; background: #eee; }
+    </style>
+</head>
+<body>
+<h1>Fitness Studio Booking</h1>
+<p>Browse available sessions and manage your account.</p>
+<div th:if="${!signedIn}"><a th:href="@{/login}">Sign in</a></div>
+<div th:if="${signedIn}">
+    <p>Signed in as <strong th:text="${email}">member@example.com</strong></p>
+    <a th:if="${customer}" th:href="@{/customer/dashboard}">Customer area</a>
+    <a th:if="${provider}" th:href="@{/provider/dashboard}">Provider area</a>
+    <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
+</div>
+<p><a th:href="@{/slots}">View available slots (JSON)</a></p>
+</body>
+</html>

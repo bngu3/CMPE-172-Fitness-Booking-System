@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in | Fitness Studio</title>
+    <style>
+        body { font: 16px system-ui, sans-serif; max-width: 440px; margin: 8vh auto; padding: 0 1rem; color: #20242a; }
+        form { display: grid; gap: .8rem; padding: 1.4rem; border: 1px solid #ddd; border-radius: 12px; }
+        input, button { font: inherit; padding: .7rem; }
+        button { cursor: pointer; background: #2457c5; color: white; border: 0; border-radius: 6px; }
+        .notice { color: #a22; }
+    </style>
+</head>
+<body>
+<h1>Fitness Studio</h1>
+<h2>Sign in</h2>
+<p class="notice" th:if="${param.error}">Email or password is incorrect.</p>
+<p th:if="${param.logout}">You have been signed out.</p>
+<form th:action="@{/login}" method="post">
+    <label for="username">Email</label>
+    <input id="username" name="username" type="email" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button type="submit">Sign in</button>
+</form>
+<p><a th:href="@{/}">Back to home</a></p>
+</body>
+</html>

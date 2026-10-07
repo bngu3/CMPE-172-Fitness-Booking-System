@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${roleLabel} + ' area | Fitness Studio'">Account area</title>
+</head>
+<body>
+<h1 th:text="${roleLabel} + ' area'">Account area</h1>
+<p>Signed in as <strong th:text="${email}">member@example.com</strong></p>
+<p>This page is restricted to accounts with the matching role.</p>
+<a th:href="@{/}">Home</a>
+<form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
+</body>
+</html>

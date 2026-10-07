@@ -12,6 +12,7 @@ CREATE TABLE users (
     full_name   VARCHAR(100) NOT NULL,
     email       VARCHAR(150) NOT NULL UNIQUE,
     password    VARCHAR(255) NOT NULL,
+    role        VARCHAR(20) NOT NULL DEFAULT 'CUSTOMER' CHECK (role = 'CUSTOMER'),
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -23,6 +24,7 @@ CREATE TABLE providers (
     full_name   VARCHAR(100) NOT NULL,
     email       VARCHAR(150) NOT NULL UNIQUE,
     password    VARCHAR(255) NOT NULL,
+    role        VARCHAR(20) NOT NULL DEFAULT 'PROVIDER' CHECK (role = 'PROVIDER'),
     specialty   VARCHAR(100),
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );

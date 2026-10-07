@@ -1,7 +1,7 @@
-# Fitness Studio Booking System — CMPE 172 Milestone 1
+# Fitness Studio Booking System - CMPE 172
 
-A layered Spring Boot REST API (Controller → Service → Repository) using
-raw JDBC (no ORM) over PostgreSQL.
+A layered Spring Boot application using Thymeleaf pages and REST endpoints,
+with raw JDBC (no ORM) over PostgreSQL.
 
 ## Entities
 `users`, `providers`, `services`, `availability_slots`, `appointments`
@@ -25,14 +25,30 @@ mvn spring-boot:run
 The app starts on `http://localhost:8080`.
 
 ## Endpoints
-- `GET /` — health/home message
-- `GET /slots` — returns all currently available booking slots as JSON DTOs,
+- `GET /` - home page
+- `GET /login` - session login page
+- `GET /slots` - returns all currently available booking slots as JSON DTOs,
   joined with provider and service info
+- `GET /customer/dashboard` - customer-only example page
+- `GET /provider/dashboard` - provider-only example page
+
+## Login and roles
+- Login uses email and password; account records are loaded from PostgreSQL by
+  `DatabaseUserDetailsService`.
+- Customer records have the `CUSTOMER` role in `users`; provider records have
+  the `PROVIDER` role in `providers`. Spring Security stores the authenticated
+  context in the server-side HTTP session.
+- Passwords are checked with BCrypt. Seed accounts share the sample password
+  `password`:
+  - Customers: `alex.chen@example.com`, `jamie.rivera@example.com`
+  - Providers: `sarah.kim@fitstudio.com`, `mike.torres@fitstudio.com`,
+    `priya.patel@fitstudio.com`
+- Sign out uses a POST form and invalidates the session. CSRF protection is
+  enabled by default.
 
 ## Architecture
 - **Controller** (`controller/`) — receives HTTP requests via Spring's
-  `DispatcherServlet` (Front Controller pattern, since this is a REST API
-  consumed by a separate frontend/SPA rather than server-rendered pages).
+  `DispatcherServlet` (Front Controller pattern) and returns pages or JSON.
 - **Service** (`service/`) — business logic layer.
 - **Repository** (`repository/`) — talks to PostgreSQL directly via
   `JdbcTemplate` (plain JDBC, no Hibernate/JPA).
