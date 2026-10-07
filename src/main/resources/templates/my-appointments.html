@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My appointments | Fitness Studio</title>
+    <style>
+        body { font: 16px system-ui, sans-serif; max-width: 1000px; margin: 5vh auto; padding: 0 1rem; color: #20242a; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0 2rem; }
+        th, td { text-align: left; padding: .75rem .5rem; border-bottom: 1px solid #ddd; }
+        a { color: #2457c5; }
+        .status { text-transform: capitalize; }
+    </style>
+</head>
+<body>
+<p><a th:href="@{/}">Home</a> · <a th:href="@{/slots}">Browse sessions</a></p>
+<h1>My appointments</h1>
+
+<section>
+    <h2>Upcoming</h2>
+    <p th:if="${#lists.isEmpty(upcoming)}">You have no upcoming appointments.</p>
+    <table th:unless="${#lists.isEmpty(upcoming)}">
+        <thead><tr><th>Service</th><th>Provider</th><th>Date</th><th>Time</th><th>Price</th><th>Status</th></tr></thead>
+        <tbody>
+        <tr th:each="appointment : ${upcoming}">
+            <td th:text="${appointment.serviceName}">Yoga Class</td>
+            <td th:text="${appointment.providerName}">Sarah Kim</td>
+            <td th:text="${appointment.slotDate}">2026-10-15</td>
+            <td><span th:text="${appointment.startTime}">09:00</span>-<span th:text="${appointment.endTime}">10:00</span></td>
+            <td>$<span th:text="${#numbers.formatDecimal(appointment.price, 1, 2)}">20.00</span></td>
+            <td class="status" th:text="${appointment.status}">BOOKED</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <h2>History</h2>
+    <p th:if="${#lists.isEmpty(history)}">Your appointment history is empty.</p>
+    <table th:unless="${#lists.isEmpty(history)}">
+        <thead><tr><th>Service</th><th>Provider</th><th>Date</th><th>Time</th><th>Price</th><th>Status</th></tr></thead>
+        <tbody>
+        <tr th:each="appointment : ${history}">
+            <td th:text="${appointment.serviceName}">Yoga Class</td>
+            <td th:text="${appointment.providerName}">Sarah Kim</td>
+            <td th:text="${appointment.slotDate}">2026-10-15</td>
+            <td><span th:text="${appointment.startTime}">09:00</span>-<span th:text="${appointment.endTime}">10:00</span></td>
+            <td>$<span th:text="${#numbers.formatDecimal(appointment.price, 1, 2)}">20.00</span></td>
+            <td class="status" th:text="${appointment.status}">COMPLETED</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

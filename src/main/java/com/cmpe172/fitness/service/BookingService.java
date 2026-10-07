@@ -1,6 +1,7 @@
 package com.cmpe172.fitness.service;
 
 import com.cmpe172.fitness.dto.BookingConfirmationDTO;
+import com.cmpe172.fitness.dto.MyAppointmentsDTO;
 import com.cmpe172.fitness.exception.InvalidBookingRequestException;
 import com.cmpe172.fitness.exception.ResourceNotFoundException;
 import com.cmpe172.fitness.exception.SlotUnavailableException;
@@ -58,5 +59,13 @@ public class BookingService {
         }
         return bookingRepository.findConfirmation(appointmentId, customerEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found."));
+    }
+
+    @Transactional
+    public MyAppointmentsDTO getMyAppointments(String customerEmail) {
+        bookingRepository.completePastBookedAppointments(customerEmail);
+        return new MyAppointmentsDTO(
+                bookingRepository.findUpcomingAppointments(customerEmail),
+                bookingRepository.findAppointmentHistory(customerEmail));
     }
 }

@@ -17,6 +17,7 @@
 <div th:if="${!signedIn}"><a th:href="@{/login}">Sign in</a></div>
 <div th:if="${signedIn}">
     <p>Signed in as <strong th:text="${email}">member@example.com</strong></p>
+    <a th:if="${customer}" th:href="@{/customer/appointments}">My appointments</a>
     <a th:if="${customer}" th:href="@{/customer/dashboard}">Customer area</a>
     <a th:if="${provider}" th:href="@{/provider/dashboard}">Provider area</a>
     <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>

@@ -1,6 +1,7 @@
 package com.cmpe172.fitness.repository;
 
 import com.cmpe172.fitness.dto.BookingConfirmationDTO;
+import com.cmpe172.fitness.dto.AppointmentDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -77,6 +78,56 @@ public class BookingRepository {
                         rs.getBigDecimal("price")),
                 appointmentId, customerEmail);
         return results.stream().findFirst();
+    }
+
+    public int completePastBookedAppointments(String customerEmail) {
+        return jdbcTemplate.update("""
+                UPDATE appointments a
+                SET status = 'COMPLETED'
+                FROM availability_slots s, users u
+                WHERE a.slot_id = s.slot_id
+                  AND a.user_id = u.user_id
+                  AND LOWER(u.email) = LOWER(?)
+                  AND a.status = 'BOOKED'
+                  AND s.slot_date < CURRENT_DATE
+                """, customerEmail);
+    }
+
+    public List<AppointmentDTO> findUpcomingAppointments(String customerEmail) {
+        return findAppointments("a.status = 'BOOKED' AND s.slot_date >= CURRENT_DATE",
+                "s.slot_date, s.start_time", customerEmail);
+    }
+
+    public List<AppointmentDTO> findAppointmentHistory(String customerEmail) {
+        return findAppointments("(a.status IN ('CANCELLED', 'COMPLETED') OR s.slot_date < CURRENT_DATE)",
+                "s.slot_date DESC, s.start_time DESC", customerEmail);
+    }
+
+    private List<AppointmentDTO> findAppointments(String categoryCondition, String orderBy,
+                                                  String customerEmail) {
+        String sql = """
+                SELECT a.appointment_id, sv.name AS service_name,
+                       p.full_name AS provider_name, s.slot_date,
+                       s.start_time, s.end_time, sv.price, a.status
+                FROM appointments a
+                JOIN users u ON u.user_id = a.user_id
+                JOIN availability_slots s ON s.slot_id = a.slot_id
+                JOIN providers p ON p.provider_id = s.provider_id
+                JOIN services sv ON sv.service_id = s.service_id
+                WHERE LOWER(u.email) = LOWER(?) AND %s
+                ORDER BY %s
+                """.formatted(categoryCondition, orderBy);
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new AppointmentDTO(
+                        rs.getInt("appointment_id"),
+                        rs.getString("service_name"),
+                        rs.getString("provider_name"),
+                        rs.getDate("slot_date").toLocalDate(),
+                        rs.getTime("start_time").toLocalTime(),
+                        rs.getTime("end_time").toLocalTime(),
+                        rs.getBigDecimal("price"),
+                        rs.getString("status")),
+                customerEmail);
     }
 
     public record LockedSlot(int slotId, LocalDate slotDate, boolean booked) { }

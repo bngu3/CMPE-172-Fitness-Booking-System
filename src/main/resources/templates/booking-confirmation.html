@@ -30,6 +30,6 @@
         <dd>$<span th:text="${#numbers.formatDecimal(appointment.price, 1, 2)}">20.00</span></dd>
     </dl>
 </section>
-<p><a th:href="@{/slots}">Browse more sessions</a></p>
+<p><a th:href="@{/customer/appointments}">My appointments</a> · <a th:href="@{/slots}">Browse more sessions</a></p>
 </body>
 </html>

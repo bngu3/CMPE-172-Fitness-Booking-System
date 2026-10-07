@@ -33,6 +33,7 @@ The app starts on `http://localhost:8080`.
 - `GET /api/slots` - JSON list of open sessions with the same filters and pages
 - `POST /customer/bookings` - customer-only booking form submission
 - `GET /customer/bookings/{id}/confirmation` - owner-only booking confirmation
+- `GET /customer/appointments` - customer's upcoming bookings and history
 - `GET /customer/dashboard` - customer-only example page
 - `GET /provider/dashboard` - provider-only example page
 
@@ -60,6 +61,9 @@ The app starts on `http://localhost:8080`.
   one transaction, so a failed insert also rolls back the slot update.
 - The confirmation lookup checks the signed-in customer's email as well as the
   appointment ID, so another customer cannot view that confirmation.
+- The appointment list is likewise queried by the signed-in customer's email.
+  Past `BOOKED` appointments are changed to `COMPLETED` when the customer views
+  their appointment list; cancelled/completed items appear in history.
 
 ## Architecture
 - **Controller** (`controller/`) — receives HTTP requests via Spring's
