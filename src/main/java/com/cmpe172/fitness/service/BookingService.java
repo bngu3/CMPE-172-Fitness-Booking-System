@@ -68,4 +68,21 @@ public class BookingService {
                 bookingRepository.findUpcomingAppointments(customerEmail),
                 bookingRepository.findAppointmentHistory(customerEmail));
     }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void cancelAppointment(int appointmentId, String customerEmail) {
+        if (appointmentId <= 0) {
+            throw new InvalidBookingRequestException();
+        }
+
+        bookingRepository.completePastBookedAppointments(customerEmail);
+        BookingRepository.CancellableAppointment appointment =
+                bookingRepository.lockAppointmentForCancellation(appointmentId, customerEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("Appointment not found."));
+
+        if (bookingRepository.markAppointmentCancelled(appointment.appointmentId()) != 1
+                || bookingRepository.markSlotAvailable(appointment.slotId()) != 1) {
+            throw new SlotUnavailableException();
+        }
+    }
 }

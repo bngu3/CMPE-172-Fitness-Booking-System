@@ -64,21 +64,20 @@ CREATE TABLE availability_slots (
 -- ---------------------------------------------------------------------
 -- appointments: a customer's booking of a specific availability_slot
 --
--- Double booking guard here
--- slot_id is UNIQUE here, so the database physically cannot allow two
--- appointment rows to reference the same slot. Even under concurrent
--- requests, the second INSERT for the same slot_id will fail with a
--- unique-violation error, which the Service layer catches and turns
--- into a "slot already booked" response.
+-- The partial unique index below allows cancelled appointments to remain in
+-- history while still preventing two active appointments for one slot.
 -- ---------------------------------------------------------------------
 CREATE TABLE appointments (
     appointment_id SERIAL PRIMARY KEY,
-    slot_id        INTEGER NOT NULL UNIQUE REFERENCES availability_slots(slot_id) ON DELETE CASCADE,
+    slot_id        INTEGER NOT NULL REFERENCES availability_slots(slot_id) ON DELETE CASCADE,
     user_id        INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     status         VARCHAR(20) NOT NULL DEFAULT 'BOOKED'
                    CHECK (status IN ('BOOKED', 'CANCELLED', 'COMPLETED')),
     booked_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX uq_active_appointment_slot ON appointments(slot_id)
+    WHERE status IN ('BOOKED', 'COMPLETED');
 
 CREATE INDEX idx_slots_provider ON availability_slots(provider_id);
 CREATE INDEX idx_slots_service  ON availability_slots(service_id);

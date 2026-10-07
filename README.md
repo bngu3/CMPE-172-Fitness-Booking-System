@@ -34,6 +34,7 @@ The app starts on `http://localhost:8080`.
 - `POST /customer/bookings` - customer-only booking form submission
 - `GET /customer/bookings/{id}/confirmation` - owner-only booking confirmation
 - `GET /customer/appointments` - customer's upcoming bookings and history
+- `POST /customer/appointments/{id}/cancel` - owner-only cancellation of a future booking
 - `GET /customer/dashboard` - customer-only example page
 - `GET /provider/dashboard` - provider-only example page
 
@@ -64,6 +65,9 @@ The app starts on `http://localhost:8080`.
 - The appointment list is likewise queried by the signed-in customer's email.
   Past `BOOKED` appointments are changed to `COMPLETED` when the customer views
   their appointment list; cancelled/completed items appear in history.
+- Cancelling locks the owned appointment in a transaction, changes its status
+  to `CANCELLED`, and frees the slot. A partial unique index prevents duplicate
+  active bookings while allowing cancelled appointment rows to remain as history.
 
 ## Architecture
 - **Controller** (`controller/`) — receives HTTP requests via Spring's
@@ -76,6 +80,6 @@ The app starts on `http://localhost:8080`.
 ## Double-booking guard
 - `availability_slots` has a `UNIQUE (provider_id, slot_date, start_time)`
   constraint so a provider can't create duplicate/overlapping slots.
-- `appointments.slot_id` is `UNIQUE`, so the database itself guarantees a
-  slot can never be booked by more than one appointment, even under
-  concurrent requests.
+- `uq_active_appointment_slot` is a partial unique index for `BOOKED` and
+  `COMPLETED` appointments. It prevents multiple active appointments per slot
+  while allowing a cancelled slot to be booked again.

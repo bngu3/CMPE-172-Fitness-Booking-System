@@ -48,6 +48,38 @@ public class BookingRepository {
                 slotId);
     }
 
+    /** Locks only a future, booked appointment belonging to this customer. */
+    public Optional<CancellableAppointment> lockAppointmentForCancellation(
+            int appointmentId, String customerEmail) {
+        List<CancellableAppointment> appointments = jdbcTemplate.query("""
+                        SELECT a.appointment_id, a.slot_id
+                        FROM appointments a
+                        JOIN users u ON u.user_id = a.user_id
+                        JOIN availability_slots s ON s.slot_id = a.slot_id
+                        WHERE a.appointment_id = ?
+                          AND LOWER(u.email) = LOWER(?)
+                          AND a.status = 'BOOKED'
+                          AND s.slot_date >= CURRENT_DATE
+                        FOR UPDATE OF a
+                        """,
+                (rs, rowNum) -> new CancellableAppointment(
+                        rs.getInt("appointment_id"), rs.getInt("slot_id")),
+                appointmentId, customerEmail);
+        return appointments.stream().findFirst();
+    }
+
+    public int markAppointmentCancelled(int appointmentId) {
+        return jdbcTemplate.update(
+                "UPDATE appointments SET status = 'CANCELLED' WHERE appointment_id = ? AND status = 'BOOKED'",
+                appointmentId);
+    }
+
+    public int markSlotAvailable(int slotId) {
+        return jdbcTemplate.update(
+                "UPDATE availability_slots SET is_booked = FALSE WHERE slot_id = ? AND is_booked = TRUE",
+                slotId);
+    }
+
     public int insertAppointment(int slotId, int customerId) {
         return jdbcTemplate.queryForObject("""
                 INSERT INTO appointments (slot_id, user_id, status)
@@ -131,4 +163,5 @@ public class BookingRepository {
     }
 
     public record LockedSlot(int slotId, LocalDate slotDate, boolean booked) { }
+    public record CancellableAppointment(int appointmentId, int slotId) { }
 }
