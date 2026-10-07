@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manage availability | Fitness Studio</title>
+    <style>
+        body { font: 16px system-ui, sans-serif; max-width: 1000px; margin: 5vh auto; padding: 0 1rem; color: #20242a; }
+        form.create { display: flex; flex-wrap: wrap; gap: .8rem; align-items: end; padding: 1rem; background: #f3f5f8; border-radius: 10px; }
+        label { display: grid; gap: .3rem; }
+        select, input, button { font: inherit; padding: .55rem; }
+        button { cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { text-align: left; padding: .75rem .5rem; border-bottom: 1px solid #ddd; }
+        a { color: #2457c5; }
+    </style>
+</head>
+<body>
+<p><a th:href="@{/}">Home</a> | <a th:href="@{/provider/appointments}">Booked appointments</a></p>
+<h1>Manage availability</h1>
+<p role="status" th:if="${param.created}">Availability added.</p>
+<p role="status" th:if="${param.deleted}">Availability removed.</p>
+
+<section>
+    <h2>Add a slot</h2>
+    <p th:if="${#lists.isEmpty(services)}">You need a service before you can add availability.</p>
+    <form class="create" th:unless="${#lists.isEmpty(services)}"
+          th:action="@{/provider/availability}" method="post">
+        <label for="serviceId">Service
+            <select id="serviceId" name="serviceId" required>
+                <option th:each="service : ${services}" th:value="${service.id}"
+                        th:text="${service.name}">Service</option>
+            </select>
+        </label>
+        <label for="date">Date
+            <input id="date" name="date" type="date" required>
+        </label>
+        <label for="startTime">Start time
+            <input id="startTime" name="startTime" type="time" required>
+        </label>
+        <label for="endTime">End time
+            <input id="endTime" name="endTime" type="time" required>
+        </label>
+        <button type="submit">Add availability</button>
+    </form>
+</section>
+
+<section>
+    <h2>Your availability</h2>
+    <p th:if="${#lists.isEmpty(slots)}">You have not added any availability yet.</p>
+    <table th:unless="${#lists.isEmpty(slots)}">
+        <thead><tr><th>Date</th><th>Time</th><th>Service</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+        <tr th:each="slot : ${slots}">
+            <td th:text="${slot.slotDate}">2026-10-15</td>
+            <td><span th:text="${slot.startTime}">09:00</span>-<span th:text="${slot.endTime}">10:00</span></td>
+            <td th:text="${slot.serviceName}">Yoga Class</td>
+            <td th:text="${slot.booked ? 'Booked' : 'Available'}">Available</td>
+            <td>
+                <form th:if="${slot.removable}"
+                      th:action="@{/provider/availability/{id}/delete(id=${slot.slotId})}" method="post">
+                    <button type="submit">Remove</button>
+                </form>
+                <span th:if="${slot.booked}">Booked slots can’t be removed.</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

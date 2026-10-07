@@ -69,7 +69,8 @@ CREATE TABLE availability_slots (
 -- ---------------------------------------------------------------------
 CREATE TABLE appointments (
     appointment_id SERIAL PRIMARY KEY,
-    slot_id        INTEGER NOT NULL REFERENCES availability_slots(slot_id) ON DELETE CASCADE,
+    -- Keep slot history intact if providers try to delete a previously used slot.
+    slot_id        INTEGER NOT NULL REFERENCES availability_slots(slot_id),
     user_id        INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     status         VARCHAR(20) NOT NULL DEFAULT 'BOOKED'
                    CHECK (status IN ('BOOKED', 'CANCELLED', 'COMPLETED')),

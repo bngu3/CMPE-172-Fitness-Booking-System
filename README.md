@@ -35,6 +35,10 @@ The app starts on `http://localhost:8080`.
 - `GET /customer/bookings/{id}/confirmation` - owner-only booking confirmation
 - `GET /customer/appointments` - customer's upcoming bookings and history
 - `POST /customer/appointments/{id}/cancel` - owner-only cancellation of a future booking
+- `GET /provider/availability` - provider's own services and availability slots
+- `POST /provider/availability` - create availability for one of the provider's services
+- `POST /provider/availability/{id}/delete` - remove an unbooked slot owned by the provider
+- `GET /provider/appointments` - appointments booked with the signed-in provider
 - `GET /customer/dashboard` - customer-only example page
 - `GET /provider/dashboard` - provider-only example page
 
@@ -68,6 +72,12 @@ The app starts on `http://localhost:8080`.
 - Cancelling locks the owned appointment in a transaction, changes its status
   to `CANCELLED`, and frees the slot. A partial unique index prevents duplicate
   active bookings while allowing cancelled appointment rows to remain as history.
+
+## Provider tools
+- Provider availability and appointment queries are filtered using the signed-in
+  provider's email/ID. A provider can only add slots for their own services.
+- Providers can remove only their own future, unbooked slots. Slots with
+  appointment history are kept so completed and cancelled records remain available.
 
 ## Architecture
 - **Controller** (`controller/`) — receives HTTP requests via Spring's

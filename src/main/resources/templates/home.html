@@ -19,7 +19,8 @@
     <p>Signed in as <strong th:text="${email}">member@example.com</strong></p>
     <a th:if="${customer}" th:href="@{/customer/appointments}">My appointments</a>
     <a th:if="${customer}" th:href="@{/customer/dashboard}">Customer area</a>
-    <a th:if="${provider}" th:href="@{/provider/dashboard}">Provider area</a>
+    <a th:if="${provider}" th:href="@{/provider/availability}">Manage availability</a>
+    <a th:if="${provider}" th:href="@{/provider/appointments}">Booked appointments</a>
     <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
 </div>
 <p><a th:href="@{/slots}">Browse available sessions</a></p>

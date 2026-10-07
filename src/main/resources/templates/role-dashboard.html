@@ -9,6 +9,10 @@
 <h1 th:text="${roleLabel} + ' area'">Account area</h1>
 <p>Signed in as <strong th:text="${email}">member@example.com</strong></p>
 <p>This page is restricted to accounts with the matching role.</p>
+<p th:if="${roleLabel == 'Provider'}">
+    <a th:href="@{/provider/availability}">Manage availability</a> |
+    <a th:href="@{/provider/appointments}">Booked appointments</a>
+</p>
 <a th:href="@{/}">Home</a>
 <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
 </body>

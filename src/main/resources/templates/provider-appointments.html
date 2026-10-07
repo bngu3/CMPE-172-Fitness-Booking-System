@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Booked appointments | Fitness Studio</title>
+    <style>
+        body { font: 16px system-ui, sans-serif; max-width: 1000px; margin: 5vh auto; padding: 0 1rem; color: #20242a; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { text-align: left; padding: .75rem .5rem; border-bottom: 1px solid #ddd; }
+        a { color: #2457c5; }
+    </style>
+</head>
+<body>
+<p><a th:href="@{/}">Home</a> | <a th:href="@{/provider/availability}">Manage availability</a></p>
+<h1>Appointments booked with you</h1>
+<p th:if="${#lists.isEmpty(appointments)}">There are no appointments for your services yet.</p>
+<table th:unless="${#lists.isEmpty(appointments)}">
+    <thead><tr><th>Customer</th><th>Service</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+    <tbody>
+    <tr th:each="appointment : ${appointments}">
+        <td th:text="${appointment.customerName}">Alex Chen</td>
+        <td th:text="${appointment.serviceName}">Yoga Class</td>
+        <td th:text="${appointment.slotDate}">2026-10-15</td>
+        <td><span th:text="${appointment.startTime}">09:00</span>-<span th:text="${appointment.endTime}">10:00</span></td>
+        <td th:text="${appointment.status}">BOOKED</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
