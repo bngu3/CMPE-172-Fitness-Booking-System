@@ -2,17 +2,21 @@ package com.cmpe172.fitness.controller;
 
 import com.cmpe172.fitness.dto.SlotDTO;
 import com.cmpe172.fitness.service.SlotService;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDate;
 import java.util.List;
 
-/**
- * REST Controller: entry point for HTTP requests. All requests are routed
- * here through Spring's DispatcherServlet (the Front Controller).
- */
-@RestController
+/** Handles page and JSON requests for currently available appointment slots. */
+@Controller
 public class SlotController {
+
+    private static final int PAGE_SIZE = 5;
 
     private final SlotService slotService;
 
@@ -20,12 +24,44 @@ public class SlotController {
         this.slotService = slotService;
     }
 
-    /**
-     * GET /slots
-     * Returns all currently available (not booked) slots as JSON DTOs.
-     */
+    /** Renders open slots with optional provider, service, and date filters. */
     @GetMapping("/slots")
-    public List<SlotDTO> getAvailableSlots() {
-        return slotService.getAvailableSlots();
+    public String getAvailableSlots(
+            @RequestParam(required = false) Integer providerId,
+            @RequestParam(required = false) Integer serviceId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+        int totalSlots = slotService.countAvailableSlots(providerId, serviceId, date);
+        int totalPages = (totalSlots + PAGE_SIZE - 1) / PAGE_SIZE;
+        int currentPage = Math.max(0, Math.min(page, Math.max(0, totalPages - 1)));
+        int offset = currentPage * PAGE_SIZE;
+
+        model.addAttribute("slots", slotService.getAvailableSlots(
+                providerId, serviceId, date, PAGE_SIZE, offset));
+        model.addAttribute("providers", slotService.getProviderOptions());
+        model.addAttribute("services", slotService.getServiceOptions());
+        model.addAttribute("selectedProviderId", providerId);
+        model.addAttribute("selectedServiceId", serviceId);
+        model.addAttribute("selectedDate", date);
+        model.addAttribute("page", currentPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalSlots", totalSlots);
+        return "slots";
+    }
+
+    /** JSON endpoint retained for API clients; uses the same SQL filters and paging. */
+    @ResponseBody
+    @GetMapping("/api/slots")
+    public List<SlotDTO> getAvailableSlotsJson(
+            @RequestParam(required = false) Integer providerId,
+            @RequestParam(required = false) Integer serviceId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "0") int page) {
+        int totalSlots = slotService.countAvailableSlots(providerId, serviceId, date);
+        int totalPages = (totalSlots + PAGE_SIZE - 1) / PAGE_SIZE;
+        int safePage = Math.max(0, Math.min(page, Math.max(0, totalPages - 1)));
+        return slotService.getAvailableSlots(providerId, serviceId, date, PAGE_SIZE,
+                safePage * PAGE_SIZE);
     }
 }

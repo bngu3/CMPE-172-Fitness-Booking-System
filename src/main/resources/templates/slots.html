@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Available sessions | Fitness Studio</title>
+    <style>
+        body { font: 16px system-ui, sans-serif; max-width: 1000px; margin: 5vh auto; padding: 0 1rem; color: #20242a; }
+        .filters { display: flex; flex-wrap: wrap; align-items: end; gap: .8rem; padding: 1rem; background: #f3f5f8; border-radius: 10px; }
+        label { display: grid; gap: .3rem; }
+        select, input, button { font: inherit; padding: .55rem; }
+        button, .button { border: 0; border-radius: 6px; background: #2457c5; color: white; padding: .65rem .9rem; text-decoration: none; cursor: pointer; }
+        .button.secondary { background: #596273; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1.2rem; }
+        th, td { text-align: left; padding: .8rem .5rem; border-bottom: 1px solid #ddd; }
+        nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+<p><a th:href="@{/}">Home</a></p>
+<h1>Available sessions</h1>
+<form class="filters" th:action="@{/slots}" method="get">
+    <label for="providerId">Provider
+        <select id="providerId" name="providerId">
+            <option value="">All providers</option>
+            <option th:each="provider : ${providers}" th:value="${provider.id}"
+                    th:text="${provider.name}"
+                    th:selected="${provider.id == selectedProviderId}">Provider</option>
+        </select>
+    </label>
+    <label for="serviceId">Service
+        <select id="serviceId" name="serviceId">
+            <option value="">All services</option>
+            <option th:each="service : ${services}" th:value="${service.id}"
+                    th:text="${service.name}"
+                    th:selected="${service.id == selectedServiceId}">Service</option>
+        </select>
+    </label>
+    <label for="date">Date
+        <input id="date" name="date" type="date" th:value="${selectedDate}">
+    </label>
+    <button type="submit">Filter</button>
+    <a class="button secondary" th:href="@{/slots}">Clear</a>
+</form>
+
+<p th:text="${totalSlots} + ' available session(s)'">0 available sessions</p>
+<p th:if="${#lists.isEmpty(slots)}">No sessions match those filters.</p>
+<table th:unless="${#lists.isEmpty(slots)}">
+    <thead>
+    <tr><th>Date</th><th>Time</th><th>Service</th><th>Provider</th><th>Price</th></tr>
+    </thead>
+    <tbody>
+    <tr th:each="slot : ${slots}">
+        <td th:text="${slot.slotDate}">2026-09-25</td>
+        <td><span th:text="${slot.startTime}">09:00</span>–<span th:text="${slot.endTime}">10:00</span></td>
+        <td th:text="${slot.serviceName}">Yoga Class</td>
+        <td th:text="${slot.providerName}">Sarah Kim</td>
+        <td>$<span th:text="${#numbers.formatDecimal(slot.price, 1, 2)}">20.00</span></td>
+    </tr>
+    </tbody>
+</table>
+
+<nav th:if="${totalPages > 1}" aria-label="Available session pages">
+    <a th:if="${page > 0}"
+       th:href="@{/slots(page=${page - 1}, providerId=${selectedProviderId}, serviceId=${selectedServiceId}, date=${selectedDate})}">Previous</a>
+    <span th:text="${'Page ' + (page + 1) + ' of ' + totalPages}">Page 1 of 1</span>
+    <a th:if="${page + 1 < totalPages}"
+       th:href="@{/slots(page=${page + 1}, providerId=${selectedProviderId}, serviceId=${selectedServiceId}, date=${selectedDate})}">Next</a>
+</nav>
+</body>
+</html>

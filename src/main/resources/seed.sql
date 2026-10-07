@@ -19,12 +19,13 @@ INSERT INTO services (provider_id, name, description, duration_minutes, price) V
 
 -- Sample availability slots
 INSERT INTO availability_slots (provider_id, service_id, slot_date, start_time, end_time, is_booked) VALUES
-(1, 1, '2026-09-25', '09:00', '10:00', FALSE),
-(1, 2, '2026-09-25', '11:00', '11:45', FALSE),
-(2, 3, '2026-09-26', '08:00', '09:00', FALSE),
-(2, 3, '2026-09-26', '17:00', '18:00', FALSE),
-(3, 4, '2026-09-27', '06:00', '06:45', FALSE),
-(3, 4, '2026-09-27', '18:00', '18:45', FALSE);
+(1, 1, CURRENT_DATE + 7, '09:00', '10:00', FALSE),
+(1, 2, CURRENT_DATE + 7, '11:00', '11:45', FALSE),
+(1, 1, CURRENT_DATE + 7, '13:00', '14:00', FALSE),
+(2, 3, CURRENT_DATE + 8, '08:00', '09:00', FALSE),
+(2, 3, CURRENT_DATE + 8, '17:00', '18:00', FALSE),
+(3, 4, CURRENT_DATE + 9, '06:00', '06:45', FALSE),
+(3, 4, CURRENT_DATE + 9, '18:00', '18:45', FALSE);
 
 -- Sample appointment (Alex books Sarah's yoga class)
 INSERT INTO appointments (slot_id, user_id, status) VALUES

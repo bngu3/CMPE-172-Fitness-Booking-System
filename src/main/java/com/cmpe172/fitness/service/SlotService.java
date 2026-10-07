@@ -1,16 +1,14 @@
 package com.cmpe172.fitness.service;
 
+import com.cmpe172.fitness.dto.FilterOption;
 import com.cmpe172.fitness.dto.SlotDTO;
 import com.cmpe172.fitness.repository.SlotRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Service layer: houses business logic. For Milestone 1 this simply
- * delegates to the repository, but this is where filtering/pagination
- * logic (Milestone 2, feature #2) will be added later.
- */
+/** Applies availability filters and delegates SQL paging to the repository. */
 @Service
 public class SlotService {
 
@@ -20,7 +18,20 @@ public class SlotService {
         this.slotRepository = slotRepository;
     }
 
-    public List<SlotDTO> getAvailableSlots() {
-        return slotRepository.findAvailableSlots();
+    public List<SlotDTO> getAvailableSlots(Integer providerId, Integer serviceId,
+                                           LocalDate date, int limit, int offset) {
+        return slotRepository.findAvailableSlots(providerId, serviceId, date, limit, offset);
+    }
+
+    public int countAvailableSlots(Integer providerId, Integer serviceId, LocalDate date) {
+        return slotRepository.countAvailableSlots(providerId, serviceId, date);
+    }
+
+    public List<FilterOption> getProviderOptions() {
+        return slotRepository.findProviderOptions();
+    }
+
+    public List<FilterOption> getServiceOptions() {
+        return slotRepository.findServiceOptions();
     }
 }
