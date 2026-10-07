@@ -3,6 +3,8 @@ package com.cmpe172.fitness.controller;
 import com.cmpe172.fitness.dto.SlotDTO;
 import com.cmpe172.fitness.service.SlotService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +33,7 @@ public class SlotController {
             @RequestParam(required = false) Integer serviceId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(defaultValue = "0") int page,
+            Authentication authentication,
             Model model) {
         int totalSlots = slotService.countAvailableSlots(providerId, serviceId, date);
         int totalPages = (totalSlots + PAGE_SIZE - 1) / PAGE_SIZE;
@@ -47,6 +50,12 @@ public class SlotController {
         model.addAttribute("page", currentPage);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("totalSlots", totalSlots);
+        boolean signedIn = authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+        model.addAttribute("signedIn", signedIn);
+        model.addAttribute("customer", signedIn && authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_CUSTOMER")));
         return "slots";
     }
 

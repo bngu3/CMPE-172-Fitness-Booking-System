@@ -47,7 +47,7 @@
 <p th:if="${#lists.isEmpty(slots)}">No sessions match those filters.</p>
 <table th:unless="${#lists.isEmpty(slots)}">
     <thead>
-    <tr><th>Date</th><th>Time</th><th>Service</th><th>Provider</th><th>Price</th></tr>
+    <tr><th>Date</th><th>Time</th><th>Service</th><th>Provider</th><th>Price</th><th>Booking</th></tr>
     </thead>
     <tbody>
     <tr th:each="slot : ${slots}">
@@ -56,6 +56,14 @@
         <td th:text="${slot.serviceName}">Yoga Class</td>
         <td th:text="${slot.providerName}">Sarah Kim</td>
         <td>$<span th:text="${#numbers.formatDecimal(slot.price, 1, 2)}">20.00</span></td>
+        <td>
+            <form th:if="${customer}" th:action="@{/customer/bookings}" method="post">
+                <input type="hidden" name="slotId" th:value="${slot.slotId}">
+                <button type="submit">Book</button>
+            </form>
+            <a th:if="${!customer and !signedIn}" th:href="@{/login}">Sign in to book</a>
+            <span th:if="${signedIn and !customer}">Customer account required</span>
+        </td>
     </tr>
     </tbody>
 </table>

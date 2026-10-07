@@ -29,7 +29,7 @@ INSERT INTO availability_slots (provider_id, service_id, slot_date, start_time, 
 
 -- Sample appointment (Alex books Sarah's yoga class)
 INSERT INTO appointments (slot_id, user_id, status) VALUES
-(1, 1, 'CONFIRMED');
+(1, 1, 'BOOKED');
 
 -- Reflect that slot 1 is now booked
 UPDATE availability_slots SET is_booked = TRUE WHERE slot_id = 1;

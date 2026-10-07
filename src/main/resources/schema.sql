@@ -75,8 +75,8 @@ CREATE TABLE appointments (
     appointment_id SERIAL PRIMARY KEY,
     slot_id        INTEGER NOT NULL UNIQUE REFERENCES availability_slots(slot_id) ON DELETE CASCADE,
     user_id        INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    status         VARCHAR(20) NOT NULL DEFAULT 'CONFIRMED'
-                   CHECK (status IN ('CONFIRMED', 'CANCELLED')),
+    status         VARCHAR(20) NOT NULL DEFAULT 'BOOKED'
+                   CHECK (status IN ('BOOKED', 'CANCELLED', 'COMPLETED')),
     booked_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

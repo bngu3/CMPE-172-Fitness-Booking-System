@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Booking confirmed | Fitness Studio</title>
+    <style>
+        body { font: 16px system-ui, sans-serif; max-width: 680px; margin: 8vh auto; padding: 0 1rem; color: #20242a; }
+        section { padding: 1.3rem; border: 1px solid #d7e7db; background: #f4faf5; border-radius: 12px; }
+        a { color: #2457c5; }
+    </style>
+</head>
+<body>
+<p><a th:href="@{/}">Home</a></p>
+<section>
+    <h1>Booking confirmed</h1>
+    <p>Your session has been booked.</p>
+    <dl>
+        <dt>Confirmation number</dt>
+        <dd th:text="${appointment.appointmentId}">101</dd>
+        <dt>Service</dt>
+        <dd th:text="${appointment.serviceName}">Yoga Class</dd>
+        <dt>Provider</dt>
+        <dd th:text="${appointment.providerName}">Sarah Kim</dd>
+        <dt>Date</dt>
+        <dd th:text="${appointment.slotDate}">2026-10-15</dd>
+        <dt>Time</dt>
+        <dd><span th:text="${appointment.startTime}">09:00</span>-<span th:text="${appointment.endTime}">10:00</span></dd>
+        <dt>Price</dt>
+        <dd>$<span th:text="${#numbers.formatDecimal(appointment.price, 1, 2)}">20.00</span></dd>
+    </dl>
+</section>
+<p><a th:href="@{/slots}">Browse more sessions</a></p>
+</body>
+</html>

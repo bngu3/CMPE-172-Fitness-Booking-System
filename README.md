@@ -31,6 +31,8 @@ The app starts on `http://localhost:8080`.
 - `GET /login` - session login page
 - `GET /slots` - Thymeleaf page to browse, filter, and paginate open sessions
 - `GET /api/slots` - JSON list of open sessions with the same filters and pages
+- `POST /customer/bookings` - customer-only booking form submission
+- `GET /customer/bookings/{id}/confirmation` - owner-only booking confirmation
 - `GET /customer/dashboard` - customer-only example page
 - `GET /provider/dashboard` - provider-only example page
 
@@ -47,6 +49,17 @@ The app starts on `http://localhost:8080`.
     `priya.patel@fitstudio.com`
 - Sign out uses a POST form and invalidates the session. CSRF protection is
   enabled by default.
+
+## Booking and concurrency
+- Booking is a customer-only POST. The service runs at `READ_COMMITTED` and
+  locks the selected availability row with PostgreSQL `SELECT ... FOR UPDATE`.
+- Requests for the same slot therefore wait for the first transaction to
+  commit; the later request sees that the slot is booked and gets HTTP 409.
+- The unique constraint on `appointments.slot_id` remains the database-level
+  backstop. Booking the slot and inserting its `BOOKED` appointment happen in
+  one transaction, so a failed insert also rolls back the slot update.
+- The confirmation lookup checks the signed-in customer's email as well as the
+  appointment ID, so another customer cannot view that confirmation.
 
 ## Architecture
 - **Controller** (`controller/`) — receives HTTP requests via Spring's
