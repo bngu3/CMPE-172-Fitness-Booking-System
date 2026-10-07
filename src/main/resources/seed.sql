@@ -1,14 +1,14 @@
 -- Sample customers
 -- All sample accounts use password "password". The stored value is BCrypt.
 INSERT INTO users (full_name, email, password, role) VALUES
-('Alex Chen', 'alex.chen@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'CUSTOMER'),
-('Jamie Rivera', 'jamie.rivera@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'CUSTOMER');
+('Alex Chen', 'alex.chen@example.com', '$2a$10$/2vaYil0t2Iib3AXAZD2He9uJZdWkkZIeEjr0l0dVKMat0FLJibWq', 'CUSTOMER'),
+('Jamie Rivera', 'jamie.rivera@example.com', '$2a$10$/2vaYil0t2Iib3AXAZD2He9uJZdWkkZIeEjr0l0dVKMat0FLJibWq', 'CUSTOMER');
 
 -- Sample trainers
 INSERT INTO providers (full_name, email, password, role, specialty) VALUES
-('Sarah Kim', 'sarah.kim@fitstudio.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'PROVIDER', 'Yoga & Pilates'),
-('Mike Torres', 'mike.torres@fitstudio.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'PROVIDER', 'Strength & Conditioning'),
-('Priya Patel', 'priya.patel@fitstudio.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'PROVIDER', 'Spin & Cardio');
+('Sarah Kim', 'sarah.kim@fitstudio.com', '$2a$10$/2vaYil0t2Iib3AXAZD2He9uJZdWkkZIeEjr0l0dVKMat0FLJibWq', 'PROVIDER', 'Yoga & Pilates'),
+('Mike Torres', 'mike.torres@fitstudio.com', '$2a$10$/2vaYil0t2Iib3AXAZD2He9uJZdWkkZIeEjr0l0dVKMat0FLJibWq', 'PROVIDER', 'Strength & Conditioning'),
+('Priya Patel', 'priya.patel@fitstudio.com', '$2a$10$/2vaYil0t2Iib3AXAZD2He9uJZdWkkZIeEjr0l0dVKMat0FLJibWq', 'PROVIDER', 'Spin & Cardio');
 
 -- Sample services (each tied to a provider)
 INSERT INTO services (provider_id, name, description, duration_minutes, price) VALUES
