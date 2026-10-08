@@ -1,6 +1,9 @@
 package com.cmpe172.fitness.controller;
 
 import com.cmpe172.fitness.service.ProviderService;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -9,11 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Controller
+@Validated
 public class ProviderController {
 
     private final ProviderService providerService;
@@ -32,17 +37,17 @@ public class ProviderController {
 
     @PostMapping("/provider/availability")
     public String createSlot(
-            @RequestParam int serviceId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime,
+            @RequestParam @Positive int serviceId,
+            @RequestParam @NotNull @FutureOrPresent @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime,
             Authentication authentication) {
         providerService.createSlot(authentication.getName(), serviceId, date, startTime, endTime);
         return "redirect:/provider/availability?created";
     }
 
     @PostMapping("/provider/availability/{slotId}/delete")
-    public String deleteSlot(@PathVariable int slotId, Authentication authentication) {
+    public String deleteSlot(@PathVariable @Positive int slotId, Authentication authentication) {
         providerService.deleteSlot(authentication.getName(), slotId);
         return "redirect:/provider/availability?deleted";
     }

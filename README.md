@@ -79,6 +79,16 @@ The app starts on `http://localhost:8080`.
 - Providers can remove only their own future, unbooked slots. Slots with
   appointment history are kept so completed and cancelled records remain available.
 
+## Validation, errors, and tests
+- Request values such as page numbers, IDs, dates, and provider time ranges are
+  validated before database writes. A global handler maps invalid requests to
+  400, missing resources to 404, role violations to 403, slot conflicts to 409,
+  and unexpected failures to a generic 500 response without a stack trace.
+- Unit tests cover booking rules and owner-only cancellation.
+- The concurrent booking integration test uses a separate PostgreSQL database
+  named `booking_app_test`; create it once in PostgreSQL before running `mvn test`.
+  The test setup recreates tables in that test database only.
+
 ## Architecture
 - **Controller** (`controller/`) — receives HTTP requests via Spring's
   `DispatcherServlet` (Front Controller pattern) and returns pages or JSON.

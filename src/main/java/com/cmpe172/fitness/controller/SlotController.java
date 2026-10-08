@@ -2,6 +2,9 @@ package com.cmpe172.fitness.controller;
 
 import com.cmpe172.fitness.dto.SlotDTO;
 import com.cmpe172.fitness.service.SlotService;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +19,7 @@ import java.util.List;
 
 /** Handles page and JSON requests for currently available appointment slots. */
 @Controller
+@Validated
 public class SlotController {
 
     private static final int PAGE_SIZE = 5;
@@ -29,10 +33,10 @@ public class SlotController {
     /** Renders open slots with optional provider, service, and date filters. */
     @GetMapping("/slots")
     public String getAvailableSlots(
-            @RequestParam(required = false) Integer providerId,
-            @RequestParam(required = false) Integer serviceId,
+            @RequestParam(required = false) @Positive Integer providerId,
+            @RequestParam(required = false) @Positive Integer serviceId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
             Authentication authentication,
             Model model) {
         int totalSlots = slotService.countAvailableSlots(providerId, serviceId, date);
@@ -63,10 +67,10 @@ public class SlotController {
     @ResponseBody
     @GetMapping("/api/slots")
     public List<SlotDTO> getAvailableSlotsJson(
-            @RequestParam(required = false) Integer providerId,
-            @RequestParam(required = false) Integer serviceId,
+            @RequestParam(required = false) @Positive Integer providerId,
+            @RequestParam(required = false) @Positive Integer serviceId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestParam(defaultValue = "0") @Min(0) int page) {
         int totalSlots = slotService.countAvailableSlots(providerId, serviceId, date);
         int totalPages = (totalSlots + PAGE_SIZE - 1) / PAGE_SIZE;
         int safePage = Math.max(0, Math.min(page, Math.max(0, totalPages - 1)));

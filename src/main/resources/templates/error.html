@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${status} + ' | ' + ${title}">Error</title>
+    <style>
+        body { font: 16px system-ui, sans-serif; max-width: 640px; margin: 12vh auto; padding: 0 1rem; color: #20242a; }
+        .status { color: #596273; }
+        a { color: #2457c5; }
+    </style>
+</head>
+<body>
+<p class="status" th:text="${status}">400</p>
+<h1 th:text="${title}">Request error</h1>
+<p th:text="${detail}">The request could not be completed.</p>
+<a th:href="@{/}">Return home</a>
+</body>
+</html>
