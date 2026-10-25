@@ -44,6 +44,12 @@ public class ProviderService {
         }
 
         int providerId = providerId(providerEmail);
+        if (!providerRepository.lockProvider(providerId)) {
+            throw new ResourceNotFoundException("Provider account not found.");
+        }
+        if (providerRepository.hasOverlappingSlot(providerId, date, start, end)) {
+            throw new SlotUnavailableException();
+        }
         try {
             providerRepository.insertSlot(providerId, serviceId, date, start, end)
                     .orElseThrow(() -> new ResourceNotFoundException("Service not found for this provider."));

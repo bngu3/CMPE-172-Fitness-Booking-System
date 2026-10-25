@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,7 @@ public class BookingRepository {
     /** Must be called inside a transaction; the row lock lasts until commit/rollback. */
     public Optional<LockedSlot> lockSlotForBooking(int slotId) {
         List<LockedSlot> slots = jdbcTemplate.query("""
-                        SELECT slot_id, slot_date, is_booked
+                        SELECT slot_id, slot_date, start_time, is_booked
                         FROM availability_slots
                         WHERE slot_id = ?
                         FOR UPDATE
@@ -37,6 +38,7 @@ public class BookingRepository {
                 (rs, rowNum) -> new LockedSlot(
                         rs.getInt("slot_id"),
                         rs.getDate("slot_date").toLocalDate(),
+                        rs.getTime("start_time").toLocalTime(),
                         rs.getBoolean("is_booked")),
                 slotId);
         return slots.stream().findFirst();
@@ -162,6 +164,6 @@ public class BookingRepository {
                 customerEmail);
     }
 
-    public record LockedSlot(int slotId, LocalDate slotDate, boolean booked) { }
+    public record LockedSlot(int slotId, LocalDate slotDate, LocalTime startTime, boolean booked) { }
     public record CancellableAppointment(int appointmentId, int slotId) { }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,26 @@ public class ProviderRepository {
                 "SELECT provider_id FROM providers WHERE LOWER(email) = LOWER(?)",
                 (rs, rowNum) -> rs.getInt("provider_id"), email);
         return ids.stream().findFirst();
+    }
+
+    /** Serializes availability creation for one provider to prevent concurrent overlaps. */
+    public boolean lockProvider(int providerId) {
+        List<Integer> ids = jdbcTemplate.query(
+                "SELECT provider_id FROM providers WHERE provider_id = ? FOR UPDATE",
+                (rs, rowNum) -> rs.getInt("provider_id"), providerId);
+        return !ids.isEmpty();
+    }
+
+    public boolean hasOverlappingSlot(int providerId, LocalDate date,
+                                      LocalTime start, LocalTime end) {
+        Boolean exists = jdbcTemplate.queryForObject("""
+                SELECT EXISTS (
+                    SELECT 1 FROM availability_slots
+                    WHERE provider_id = ? AND slot_date = ?
+                      AND start_time < ? AND end_time > ?
+                )
+                """, Boolean.class, providerId, Date.valueOf(date), Time.valueOf(end), Time.valueOf(start));
+        return Boolean.TRUE.equals(exists);
     }
 
     public List<FilterOption> findServices(int providerId) {

@@ -1,13 +1,7 @@
-DROP TABLE IF EXISTS appointments CASCADE;
-DROP TABLE IF EXISTS availability_slots CASCADE;
-DROP TABLE IF EXISTS services CASCADE;
-DROP TABLE IF EXISTS providers CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-
 -- ---------------------------------------------------------------------
 -- users: customers who book sessions
 -- ---------------------------------------------------------------------
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id     SERIAL PRIMARY KEY,
     full_name   VARCHAR(100) NOT NULL,
     email       VARCHAR(150) NOT NULL UNIQUE,
@@ -19,7 +13,7 @@ CREATE TABLE users (
 -- ---------------------------------------------------------------------
 -- providers: trainers/instructors
 -- ---------------------------------------------------------------------
-CREATE TABLE providers (
+CREATE TABLE IF NOT EXISTS providers (
     provider_id SERIAL PRIMARY KEY,
     full_name   VARCHAR(100) NOT NULL,
     email       VARCHAR(150) NOT NULL UNIQUE,
@@ -33,7 +27,7 @@ CREATE TABLE providers (
 -- services: types of sessions a provider can offer
 -- (1-on-1 Training, Yoga Class, Spin Class, Nutrition Consult, etc.)
 -- ---------------------------------------------------------------------
-CREATE TABLE services (
+CREATE TABLE IF NOT EXISTS services (
     service_id       SERIAL PRIMARY KEY,
     provider_id      INTEGER NOT NULL REFERENCES providers(provider_id) ON DELETE CASCADE,
     name             VARCHAR(100) NOT NULL,
@@ -49,7 +43,7 @@ CREATE TABLE services (
 -- A provider cannot open two identical slots (same provider, same date,
 -- same start time). This protects the provider's own calendar.
 -- ---------------------------------------------------------------------
-CREATE TABLE availability_slots (
+CREATE TABLE IF NOT EXISTS availability_slots (
     slot_id     SERIAL PRIMARY KEY,
     provider_id INTEGER NOT NULL REFERENCES providers(provider_id) ON DELETE CASCADE,
     service_id  INTEGER NOT NULL REFERENCES services(service_id) ON DELETE CASCADE,
@@ -67,7 +61,7 @@ CREATE TABLE availability_slots (
 -- The partial unique index below allows cancelled appointments to remain in
 -- history while still preventing two active appointments for one slot.
 -- ---------------------------------------------------------------------
-CREATE TABLE appointments (
+CREATE TABLE IF NOT EXISTS appointments (
     appointment_id SERIAL PRIMARY KEY,
     -- Keep slot history intact if providers try to delete a previously used slot.
     slot_id        INTEGER NOT NULL REFERENCES availability_slots(slot_id),
@@ -77,10 +71,10 @@ CREATE TABLE appointments (
     booked_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX uq_active_appointment_slot ON appointments(slot_id)
+CREATE UNIQUE INDEX IF NOT EXISTS uq_active_appointment_slot ON appointments(slot_id)
     WHERE status IN ('BOOKED', 'COMPLETED');
 
-CREATE INDEX idx_slots_provider ON availability_slots(provider_id);
-CREATE INDEX idx_slots_service  ON availability_slots(service_id);
-CREATE INDEX idx_slots_date     ON availability_slots(slot_date);
-CREATE INDEX idx_appt_user      ON appointments(user_id);
+CREATE INDEX IF NOT EXISTS idx_slots_provider ON availability_slots(provider_id);
+CREATE INDEX IF NOT EXISTS idx_slots_service  ON availability_slots(service_id);
+CREATE INDEX IF NOT EXISTS idx_slots_date     ON availability_slots(slot_date);
+CREATE INDEX IF NOT EXISTS idx_appt_user      ON appointments(user_id);

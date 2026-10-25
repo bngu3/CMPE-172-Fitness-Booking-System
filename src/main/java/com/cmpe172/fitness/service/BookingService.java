@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class BookingService {
@@ -37,7 +37,7 @@ public class BookingService {
 
         BookingRepository.LockedSlot slot = bookingRepository.lockSlotForBooking(slotId)
                 .orElseThrow(() -> new ResourceNotFoundException("Session not found."));
-        if (slot.booked() || slot.slotDate().isBefore(LocalDate.now())) {
+        if (slot.booked() || !LocalDateTime.of(slot.slotDate(), slot.startTime()).isAfter(LocalDateTime.now())) {
             throw new SlotUnavailableException();
         }
 

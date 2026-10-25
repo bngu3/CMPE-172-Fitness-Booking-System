@@ -1,5 +1,6 @@
 package com.cmpe172.fitness.controller;
 
+import com.cmpe172.fitness.dto.FilterOption;
 import com.cmpe172.fitness.dto.SlotDTO;
 import com.cmpe172.fitness.service.SlotService;
 import jakarta.validation.constraints.Min;
@@ -76,5 +77,12 @@ public class SlotController {
         int safePage = Math.max(0, Math.min(page, Math.max(0, totalPages - 1)));
         return slotService.getAvailableSlots(providerId, serviceId, date, PAGE_SIZE,
                 safePage * PAGE_SIZE);
+    }
+
+    /** JSON endpoint for provider options, read directly from PostgreSQL. */
+    @ResponseBody
+    @GetMapping("/api/providers")
+    public List<FilterOption> getProvidersJson() {
+        return slotService.getProviderOptions();
     }
 }

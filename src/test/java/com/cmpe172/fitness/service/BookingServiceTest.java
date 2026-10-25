@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +41,7 @@ class BookingServiceTest {
         when(bookingRepository.findCustomerIdByEmail("alex.chen@example.com"))
                 .thenReturn(Optional.of(1));
         when(bookingRepository.lockSlotForBooking(7))
-                .thenReturn(Optional.of(new BookingRepository.LockedSlot(7, LocalDate.now().plusDays(1), true)));
+                .thenReturn(Optional.of(new BookingRepository.LockedSlot(7, LocalDate.now().plusDays(1), LocalTime.NOON, true)));
 
         assertThrows(SlotUnavailableException.class,
                 () -> bookingService.bookSlot(7, "alex.chen@example.com"));
@@ -52,7 +53,7 @@ class BookingServiceTest {
         when(bookingRepository.findCustomerIdByEmail("alex.chen@example.com"))
                 .thenReturn(Optional.of(1));
         when(bookingRepository.lockSlotForBooking(7))
-                .thenReturn(Optional.of(new BookingRepository.LockedSlot(7, LocalDate.now().plusDays(1), false)));
+                .thenReturn(Optional.of(new BookingRepository.LockedSlot(7, LocalDate.now().plusDays(1), LocalTime.NOON, false)));
         when(bookingRepository.markSlotBooked(7)).thenReturn(1);
         when(bookingRepository.insertAppointment(7, 1)).thenReturn(42);
 

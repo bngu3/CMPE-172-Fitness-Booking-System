@@ -7,7 +7,7 @@ with raw JDBC (no ORM) over PostgreSQL.
 `users`, `providers`, `services`, `availability_slots`, `appointments`
 
 ## Prerequisites
-- Java 17+
+- Java 21+
 - Maven (or use the included wrapper if added)
 - PostgreSQL running locally on port 5432
 
@@ -15,10 +15,12 @@ with raw JDBC (no ORM) over PostgreSQL.
 1. Create a database named `booking_app` in PostgreSQL (via pgAdmin or `createdb`).
 2. Open `src/main/resources/application.properties` and set your Postgres
    username/password to match your local install.
-3. That's it - `schema.sql` and `seed.sql` in `src/main/resources` run
-   automatically every time the app starts (`spring.sql.init.mode=always`).
-   **Warning:** `schema.sql` currently drops and recreates the tables at startup,
-   so restarting the app resets the database to the sample data.
+3. Start the app once to create any missing tables. The schema uses
+   `CREATE TABLE IF NOT EXISTS`, so restarting the app preserves existing data.
+4. To load the sample accounts and appointments into a new, empty database,
+   run `psql -d booking_app -f src/main/resources/seed.sql` once. Sample data is
+   not inserted automatically on startup, which avoids duplicate rows and keeps
+   existing data intact.
 
 ## Run
 ```bash
@@ -31,6 +33,7 @@ The app starts on `http://localhost:8080`.
 - `GET /login` - session login page
 - `GET /slots` - Thymeleaf page to browse, filter, and paginate open sessions
 - `GET /api/slots` - JSON list of open sessions with the same filters and pages
+- `GET /api/providers` - JSON list of providers, read from PostgreSQL
 - `POST /customer/bookings` - customer-only booking form submission
 - `GET /customer/bookings/{id}/confirmation` - owner-only booking confirmation
 - `GET /customer/appointments` - customer's upcoming bookings and history
