@@ -34,6 +34,7 @@ The app starts on `http://localhost:8080`.
 - `GET /slots` - Thymeleaf page to browse, filter, and paginate open sessions
 - `GET /api/slots` - JSON list of open sessions with the same filters and pages
 - `GET /api/providers` - JSON list of providers, read from PostgreSQL
+- `GET /health` - application and PostgreSQL health status
 - `POST /customer/bookings` - customer-only booking form submission
 - `GET /customer/bookings/{id}/confirmation` - owner-only booking confirmation
 - `GET /customer/appointments` - customer's upcoming bookings and history
@@ -96,6 +97,11 @@ The app starts on `http://localhost:8080`.
   `appointment-{id}:CANCELLED`); the mock stores accepted requests in memory and
   ignores duplicate deliveries. Set `NOTIFICATION_SERVICE_URL` to point the
   gateway at another implementation.
+
+## Health check
+`GET /health` runs `SELECT 1` against PostgreSQL. A healthy response is HTTP 200
+with `{"status":"UP","database":"UP"}`. If the database query fails, it
+returns HTTP 503 with `{"status":"DOWN","database":"DOWN"}`.
 
 ## Provider tools
 - Provider availability and appointment queries are filtered using the signed-in
