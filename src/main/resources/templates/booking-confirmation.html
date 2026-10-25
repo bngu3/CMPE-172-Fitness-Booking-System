@@ -5,16 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Booking confirmed | Fitness Studio</title>
     <style>
-        body { font: 16px system-ui, sans-serif; max-width: 680px; margin: 8vh auto; padding: 0 1rem; color: #20242a; }
-        section { padding: 1.3rem; border: 1px solid #d7e7db; background: #f4faf5; border-radius: 12px; }
-        a { color: #2457c5; }
+        * { box-sizing: border-box; }
+        body { font: 16px/1.5 system-ui, sans-serif; max-width: 720px; margin: 8vh auto; padding: 0 1rem; color: #20242a; background: #f6f8fb; }
+        .home-link { display: inline-block; margin-bottom: 1rem; color: #2457c5; text-decoration: none; }
+        .confirmation { padding: clamp(1.25rem, 4vw, 2rem); border: 1px solid #d7e7db; background: #fff; border-radius: 16px; box-shadow: 0 8px 28px rgb(25 45 35 / 8%); }
+        .badge { display: inline-block; padding: .35rem .7rem; border-radius: 999px; color: #17633a; background: #e8f6ed; font-size: .9rem; font-weight: 650; }
+        h1 { margin: .8rem 0 .2rem; font-size: clamp(1.7rem, 5vw, 2.2rem); line-height: 1.2; }
+        .intro { margin: 0 0 1.5rem; color: #5c6572; }
+        dl { display: grid; grid-template-columns: minmax(130px, .7fr) 1.3fr; gap: 0; margin: 0; border-top: 1px solid #e7ebef; }
+        dt, dd { margin: 0; padding: .8rem .25rem; border-bottom: 1px solid #e7ebef; }
+        dt { color: #626c78; }
+        dd { font-weight: 600; overflow-wrap: anywhere; }
+        .actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+        .actions a { display: inline-block; padding: .7rem 1rem; border: 1px solid #2457c5; border-radius: 8px; color: #2457c5; font-weight: 600; text-decoration: none; }
+        .actions a:first-child { color: #fff; background: #2457c5; }
+        .actions a:hover { filter: brightness(.94); }
+        @media (max-width: 480px) { dl { grid-template-columns: 1fr; } dt { padding-bottom: .15rem; border-bottom: 0; } dd { padding-top: .15rem; } }
     </style>
 </head>
 <body>
-<p><a th:href="@{/}">Home</a></p>
-<section>
+<a class="home-link" th:href="@{/}">Home</a>
+<main class="confirmation">
+    <span class="badge">Booking complete</span>
     <h1>Booking confirmed</h1>
-    <p>Your session has been booked.</p>
+    <p class="intro">Your session is booked. Here are the details:</p>
     <dl>
         <dt>Confirmation number</dt>
         <dd th:text="${appointment.appointmentId}">101</dd>
@@ -25,11 +39,14 @@
         <dt>Date</dt>
         <dd th:text="${appointment.slotDate}">2026-10-15</dd>
         <dt>Time</dt>
-        <dd><span th:text="${appointment.startTime}">09:00</span>-<span th:text="${appointment.endTime}">10:00</span></dd>
+        <dd><span th:text="${appointment.startTime}">09:00</span> – <span th:text="${appointment.endTime}">10:00</span></dd>
         <dt>Price</dt>
         <dd>$<span th:text="${#numbers.formatDecimal(appointment.price, 1, 2)}">20.00</span></dd>
     </dl>
-</section>
-<p><a th:href="@{/customer/appointments}">My appointments</a> · <a th:href="@{/slots}">Browse more sessions</a></p>
+</main>
+<nav class="actions" aria-label="Next steps">
+    <a th:href="@{/customer/appointments}">View my appointments</a>
+    <a th:href="@{/slots}">Browse more sessions</a>
+</nav>
 </body>
 </html>
