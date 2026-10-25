@@ -13,9 +13,10 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/internal/notifications"))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/login", "/slots", "/api/slots", "/api/providers",
-                                "/error", "/css/**").permitAll()
+                                "/internal/notifications", "/error", "/css/**").permitAll()
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/provider/**").hasRole("PROVIDER")
                         .anyRequest().authenticated())

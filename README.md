@@ -44,6 +44,7 @@ The app starts on `http://localhost:8080`.
 - `GET /provider/appointments` - appointments booked with the signed-in provider
 - `GET /customer/dashboard` - customer-only example page
 - `GET /provider/dashboard` - provider-only example page
+- `POST /internal/notifications` - mock notification-service endpoint called through an HTTP gateway
 
 ## Login and roles
 - Login uses email and password; account records are loaded from PostgreSQL by
@@ -75,6 +76,26 @@ The app starts on `http://localhost:8080`.
 - Cancelling locks the owned appointment in a transaction, changes its status
   to `CANCELLED`, and frees the slot. A partial unique index prevents duplicate
   active bookings while allowing cancelled appointment rows to remain as history.
+
+## Notification boundary
+- Distribution path:
+
+  ```text
+  Client -> Appointment Scheduler -> Notification Service (mock)
+  ```
+
+- The scheduler sends one coarse-grained DTO containing an idempotency key,
+  recipient, event type, and message to `/internal/notifications`. Keeping this
+  payload at the appointment-event level avoids several chatty calls and leaves
+  the gateway interface reusable if the mock is later replaced.
+- Booking and cancellation transactions commit before the HTTP notification call.
+  The gateway uses a 500 ms connect timeout, a 1 second response timeout, and up
+  to three attempts. A timeout or service failure is logged and falls back to
+  keeping the booking/cancellation successful.
+- Retries use the same event key (`appointment-{id}:BOOKED` or
+  `appointment-{id}:CANCELLED`); the mock stores accepted requests in memory and
+  ignores duplicate deliveries. Set `NOTIFICATION_SERVICE_URL` to point the
+  gateway at another implementation.
 
 ## Provider tools
 - Provider availability and appointment queries are filtered using the signed-in

@@ -1,7 +1,9 @@
 package com.cmpe172.fitness.controller;
 
 import com.cmpe172.fitness.dto.BookingConfirmationDTO;
+import com.cmpe172.fitness.dto.NotificationRequest;
 import com.cmpe172.fitness.service.BookingService;
+import com.cmpe172.fitness.service.NotificationClient;
 import jakarta.validation.constraints.Positive;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.security.core.Authentication;
@@ -17,14 +19,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final NotificationClient notificationClient;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, NotificationClient notificationClient) {
         this.bookingService = bookingService;
+        this.notificationClient = notificationClient;
     }
 
     @PostMapping("/customer/bookings")
     public String bookSlot(@RequestParam @Positive int slotId, Authentication authentication) {
         int appointmentId = bookingService.bookSlot(slotId, authentication.getName());
+        notificationClient.send(new NotificationRequest(
+                "appointment-" + appointmentId + ":BOOKED",
+                authentication.getName(),
+                "BOOKING_CONFIRMED",
+                "Your booking is confirmed. Appointment #" + appointmentId + "."));
         return "redirect:/customer/bookings/" + appointmentId + "/confirmation";
     }
 
