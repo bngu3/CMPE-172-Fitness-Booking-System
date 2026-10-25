@@ -28,6 +28,24 @@ mvn spring-boot:run
 ```
 The app starts on `http://localhost:8080`.
 
+## Run with Docker
+```bash
+docker compose up --build
+```
+The app is available at `http://localhost:8080`; the Compose PostgreSQL
+database is available on host port `5433` so it does not conflict with a local
+PostgreSQL server on `5432`. On first initialization, PostgreSQL loads the
+schema and sample data from `src/main/resources`. The named `postgres_data`
+volume preserves the database across container restarts. Run `docker compose down`
+to stop the containers without deleting data. `docker compose down -v` deletes
+the database volume.
+
+## Continuous integration
+The GitHub Actions workflow in `.github/workflows/ci.yml` runs on every push
+and pull request. It sets up Java 21, starts a temporary PostgreSQL test
+database, and runs `mvn verify`. The temporary database is discarded when the
+workflow finishes and does not use the developer's local database.
+
 ## Endpoints
 - `GET /` - home page
 - `GET /login` - session login page
@@ -107,6 +125,29 @@ returns HTTP 503 with `{"status":"DOWN","database":"DOWN"}`.
 The `fitness.bookings.created` Micrometer counter increments after a booking
 transaction commits. Read its count from
 `GET /actuator/metrics/fitness.bookings.created`.
+
+## Logging plan and failure recovery
+Logs go to the application console and record operational events rather than
+every database transaction. Notification logs include the event type and
+idempotency key, but not the recipient or message.
+
+- **INFO:** A notification was accepted or a duplicate was ignored. Example:
+  `Mock notification accepted: type=BOOKING_CONFIRMED, key=appointment-42:BOOKED`.
+- **WARN:** A notification attempt failed and will be retried, all attempts
+  failed, or the database health check failed. Example:
+  `Notification attempt 1 failed; retrying with idempotency key=appointment-42:BOOKED`.
+- **ERROR:** The notification service rejected a request or an unexpected
+  application error occurred. Example:
+  `Notification rejected with HTTP 400: type=BOOKING_CONFIRMED, key=appointment-42:BOOKED`.
+
+**Failure scenario and recovery:** If the notification service times out during
+a booking, the booking transaction has already committed. The gateway retries
+up to three times with the same idempotency key. If it still cannot deliver,
+the app logs a warning and the customer still receives the booking confirmation
+page. Once the notification service is available again, an operator can replay
+the failed request using the logged key and the booking details. The app does
+not currently keep a durable retry queue, so automatic delivery after recovery
+is not guaranteed.
 
 ## Provider tools
 - Provider availability and appointment queries are filtered using the signed-in
