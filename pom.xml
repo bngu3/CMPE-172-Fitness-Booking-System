@@ -42,6 +42,12 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- Actuator endpoints and Micrometer metrics -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- JDBC support (JdbcTemplate) - NO ORM/JPA -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

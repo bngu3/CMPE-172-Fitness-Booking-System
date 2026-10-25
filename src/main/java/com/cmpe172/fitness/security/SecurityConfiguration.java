@@ -16,7 +16,8 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/internal/notifications"))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/login", "/slots", "/api/slots", "/api/providers",
-                                "/internal/notifications", "/health", "/error", "/css/**").permitAll()
+                                "/internal/notifications", "/health", "/actuator/metrics/**",
+                                "/error", "/css/**").permitAll()
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/provider/**").hasRole("PROVIDER")
                         .anyRequest().authenticated())

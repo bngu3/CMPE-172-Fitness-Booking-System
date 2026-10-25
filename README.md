@@ -103,6 +103,11 @@ The app starts on `http://localhost:8080`.
 with `{"status":"UP","database":"UP"}`. If the database query fails, it
 returns HTTP 503 with `{"status":"DOWN","database":"DOWN"}`.
 
+## Metric
+The `fitness.bookings.created` Micrometer counter increments after a booking
+transaction commits. Read its count from
+`GET /actuator/metrics/fitness.bookings.created`.
+
 ## Provider tools
 - Provider availability and appointment queries are filtered using the signed-in
   provider's email/ID. A provider can only add slots for their own services.

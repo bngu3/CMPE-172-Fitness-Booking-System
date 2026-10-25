@@ -2,6 +2,7 @@ package com.cmpe172.fitness.controller;
 
 import com.cmpe172.fitness.dto.BookingConfirmationDTO;
 import com.cmpe172.fitness.dto.NotificationRequest;
+import com.cmpe172.fitness.service.BookingMetrics;
 import com.cmpe172.fitness.service.BookingService;
 import com.cmpe172.fitness.service.NotificationClient;
 import jakarta.validation.constraints.Positive;
@@ -20,15 +21,19 @@ public class BookingController {
 
     private final BookingService bookingService;
     private final NotificationClient notificationClient;
+    private final BookingMetrics bookingMetrics;
 
-    public BookingController(BookingService bookingService, NotificationClient notificationClient) {
+    public BookingController(BookingService bookingService, NotificationClient notificationClient,
+                             BookingMetrics bookingMetrics) {
         this.bookingService = bookingService;
         this.notificationClient = notificationClient;
+        this.bookingMetrics = bookingMetrics;
     }
 
     @PostMapping("/customer/bookings")
     public String bookSlot(@RequestParam @Positive int slotId, Authentication authentication) {
         int appointmentId = bookingService.bookSlot(slotId, authentication.getName());
+        bookingMetrics.recordBookingCreated();
         notificationClient.send(new NotificationRequest(
                 "appointment-" + appointmentId + ":BOOKED",
                 authentication.getName(),
