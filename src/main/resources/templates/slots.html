@@ -52,7 +52,7 @@
     <tbody>
     <tr th:each="slot : ${slots}">
         <td th:text="${slot.slotDate}">2026-09-25</td>
-        <td><span th:text="${slot.startTime}">09:00</span>–<span th:text="${slot.endTime}">10:00</span></td>
+        <td><span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(slot.startTime)}">09:00</span>–<span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(slot.endTime)}">10:00</span></td>
         <td th:text="${slot.serviceName}">Yoga Class</td>
         <td th:text="${slot.providerName}">Sarah Kim</td>
         <td>$<span th:text="${#numbers.formatDecimal(slot.price, 1, 2)}">20.00</span></td>
@@ -77,3 +77,4 @@
 </nav>
 </body>
 </html>
+

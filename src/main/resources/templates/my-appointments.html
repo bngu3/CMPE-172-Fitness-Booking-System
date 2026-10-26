@@ -27,7 +27,7 @@
             <td th:text="${appointment.serviceName}">Yoga Class</td>
             <td th:text="${appointment.providerName}">Sarah Kim</td>
             <td th:text="${appointment.slotDate}">2026-10-15</td>
-            <td><span th:text="${appointment.startTime}">09:00</span>-<span th:text="${appointment.endTime}">10:00</span></td>
+            <td><span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(appointment.startTime)}">09:00</span>-<span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(appointment.endTime)}">10:00</span></td>
             <td>$<span th:text="${#numbers.formatDecimal(appointment.price, 1, 2)}">20.00</span></td>
             <td class="status" th:text="${appointment.status}">BOOKED</td>
             <td>
@@ -50,7 +50,7 @@
             <td th:text="${appointment.serviceName}">Yoga Class</td>
             <td th:text="${appointment.providerName}">Sarah Kim</td>
             <td th:text="${appointment.slotDate}">2026-10-15</td>
-            <td><span th:text="${appointment.startTime}">09:00</span>-<span th:text="${appointment.endTime}">10:00</span></td>
+            <td><span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(appointment.startTime)}">09:00</span>-<span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(appointment.endTime)}">10:00</span></td>
             <td>$<span th:text="${#numbers.formatDecimal(appointment.price, 1, 2)}">20.00</span></td>
             <td class="status" th:text="${appointment.status}">COMPLETED</td>
         </tr>
@@ -59,3 +59,4 @@
 </section>
 </body>
 </html>
+

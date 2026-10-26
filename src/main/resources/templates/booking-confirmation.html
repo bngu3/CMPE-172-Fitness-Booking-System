@@ -39,7 +39,7 @@
         <dt>Date</dt>
         <dd th:text="${appointment.slotDate}">2026-10-15</dd>
         <dt>Time</dt>
-        <dd><span th:text="${appointment.startTime}">09:00</span> – <span th:text="${appointment.endTime}">10:00</span></dd>
+        <dd><span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(appointment.startTime)}">09:00</span> – <span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(appointment.endTime)}">10:00</span></dd>
         <dt>Price</dt>
         <dd>$<span th:text="${#numbers.formatDecimal(appointment.price, 1, 2)}">20.00</span></dd>
     </dl>
@@ -50,3 +50,4 @@
 </nav>
 </body>
 </html>
+

@@ -22,10 +22,11 @@
         <td th:text="${appointment.customerName}">Alex Chen</td>
         <td th:text="${appointment.serviceName}">Yoga Class</td>
         <td th:text="${appointment.slotDate}">2026-10-15</td>
-        <td><span th:text="${appointment.startTime}">09:00</span>-<span th:text="${appointment.endTime}">10:00</span></td>
+        <td><span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(appointment.startTime)}">09:00</span>-<span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('h:mm a').format(appointment.endTime)}">10:00</span></td>
         <td th:text="${appointment.status}">BOOKED</td>
     </tr>
     </tbody>
 </table>
 </body>
 </html>
+
