@@ -51,9 +51,15 @@ CREATE TABLE IF NOT EXISTS availability_slots (
     start_time  TIME NOT NULL,
     end_time    TIME NOT NULL,
     is_booked   BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT uq_provider_slot UNIQUE (provider_id, slot_date, start_time),
+    is_withdrawn BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT chk_slot_time CHECK (end_time > start_time)
 );
+
+-- Existing installations gain soft deletion without losing availability history.
+ALTER TABLE availability_slots ADD COLUMN IF NOT EXISTS is_withdrawn BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE availability_slots DROP CONSTRAINT IF EXISTS uq_provider_slot;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_provider_active_slot
+    ON availability_slots(provider_id, slot_date, start_time) WHERE is_withdrawn = FALSE;
 
 -- ---------------------------------------------------------------------
 -- appointments: a customer's booking of a specific availability_slot

@@ -32,7 +32,8 @@ public class SlotRepository {
                 FROM availability_slots s
                 JOIN providers p ON s.provider_id = p.provider_id
                 JOIN services sv ON s.service_id = sv.service_id
-                WHERE s.is_booked = FALSE AND s.slot_date >= CURRENT_DATE
+                WHERE s.is_booked = FALSE AND s.is_withdrawn = FALSE
+                  AND (s.slot_date + s.start_time) > CURRENT_TIMESTAMP
                 """
         );
         appendFilters(sql, parameters, providerId, serviceId, date);
@@ -54,7 +55,7 @@ public class SlotRepository {
     public int countAvailableSlots(Integer providerId, Integer serviceId, LocalDate date) {
         List<Object> parameters = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
-                "SELECT COUNT(*) FROM availability_slots s WHERE s.is_booked = FALSE AND s.slot_date >= CURRENT_DATE");
+                "SELECT COUNT(*) FROM availability_slots s WHERE s.is_booked = FALSE AND s.is_withdrawn = FALSE AND (s.slot_date + s.start_time) > CURRENT_TIMESTAMP");
         appendFilters(sql, parameters, providerId, serviceId, date);
         return jdbcTemplate.queryForObject(sql.toString(), Integer.class, parameters.toArray());
     }

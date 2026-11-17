@@ -44,6 +44,7 @@ public class ProviderRepository {
                 SELECT EXISTS (
                     SELECT 1 FROM availability_slots
                     WHERE provider_id = ? AND slot_date = ?
+                      AND is_withdrawn = FALSE
                       AND start_time < ? AND end_time > ?
                 )
                 """, Boolean.class, providerId, Date.valueOf(date), Time.valueOf(end), Time.valueOf(start));
@@ -73,7 +74,7 @@ public class ProviderRepository {
     public List<ProviderSlotDTO> findSlots(int providerId) {
         return jdbcTemplate.query("""
                         SELECT s.slot_id, sv.name AS service_name, s.slot_date,
-                               s.start_time, s.end_time, s.is_booked
+                               s.start_time, s.end_time, s.is_booked, s.is_withdrawn
                         FROM availability_slots s
                         JOIN services sv ON sv.service_id = s.service_id
                         WHERE s.provider_id = ?
@@ -89,14 +90,15 @@ public class ProviderRepository {
                             rs.getTime("start_time").toLocalTime(),
                             rs.getTime("end_time").toLocalTime(),
                             booked,
-                            !booked && !slotDate.isBefore(LocalDate.now()));
+                            rs.getBoolean("is_withdrawn"),
+                            !booked && !rs.getBoolean("is_withdrawn") && !slotDate.isBefore(LocalDate.now()));
                 },
                 providerId);
     }
 
     public Optional<OwnedSlot> lockOwnedSlot(int providerId, int slotId) {
         List<OwnedSlot> slots = jdbcTemplate.query("""
-                        SELECT slot_id, slot_date, is_booked
+                        SELECT slot_id, slot_date, is_booked, is_withdrawn
                         FROM availability_slots
                         WHERE slot_id = ? AND provider_id = ?
                         FOR UPDATE
@@ -104,22 +106,15 @@ public class ProviderRepository {
                 (rs, rowNum) -> new OwnedSlot(
                         rs.getInt("slot_id"),
                         rs.getDate("slot_date").toLocalDate(),
-                        rs.getBoolean("is_booked")),
+                        rs.getBoolean("is_booked"), rs.getBoolean("is_withdrawn")),
                 slotId, providerId);
         return slots.stream().findFirst();
     }
 
-    public boolean hasAppointments(int slotId) {
-        Boolean exists = jdbcTemplate.queryForObject(
-                "SELECT EXISTS (SELECT 1 FROM appointments WHERE slot_id = ?)",
-                Boolean.class, slotId);
-        return Boolean.TRUE.equals(exists);
-    }
-
-    public int deleteUnbookedSlot(int providerId, int slotId) {
+    public int withdrawUnbookedSlot(int providerId, int slotId) {
         return jdbcTemplate.update("""
-                DELETE FROM availability_slots
-                WHERE slot_id = ? AND provider_id = ? AND is_booked = FALSE
+                UPDATE availability_slots SET is_withdrawn = TRUE
+                WHERE slot_id = ? AND provider_id = ? AND is_booked = FALSE AND is_withdrawn = FALSE
                 """, slotId, providerId);
     }
 
@@ -132,7 +127,7 @@ public class ProviderRepository {
                   AND s.provider_id = p.provider_id
                   AND LOWER(p.email) = LOWER(?)
                   AND a.status = 'BOOKED'
-                  AND s.slot_date < CURRENT_DATE
+                  AND (s.slot_date + s.end_time) <= CURRENT_TIMESTAMP
                 """, providerEmail);
     }
 
@@ -160,5 +155,5 @@ public class ProviderRepository {
                 providerEmail);
     }
 
-    public record OwnedSlot(int slotId, LocalDate slotDate, boolean booked) { }
+    public record OwnedSlot(int slotId, LocalDate slotDate, boolean booked, boolean withdrawn) { }
 }

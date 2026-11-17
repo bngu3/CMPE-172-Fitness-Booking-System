@@ -11,4 +11,5 @@ public record ProviderSlotDTO(
         LocalTime startTime,
         LocalTime endTime,
         boolean booked,
+        boolean withdrawn,
         boolean removable) { }

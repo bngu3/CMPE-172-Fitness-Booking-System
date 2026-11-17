@@ -67,13 +67,10 @@ public class ProviderService {
         int providerId = providerId(providerEmail);
         ProviderRepository.OwnedSlot slot = providerRepository.lockOwnedSlot(providerId, slotId)
                 .orElseThrow(() -> new ResourceNotFoundException("Availability slot not found."));
-        if (slot.booked() || slot.slotDate().isBefore(LocalDate.now())) {
+        if (slot.booked() || slot.withdrawn() || slot.slotDate().isBefore(LocalDate.now())) {
             throw new SlotUnavailableException();
         }
-        if (providerRepository.hasAppointments(slotId)) {
-            throw new SlotUnavailableException();
-        }
-        if (providerRepository.deleteUnbookedSlot(providerId, slotId) != 1) {
+        if (providerRepository.withdrawUnbookedSlot(providerId, slotId) != 1) {
             throw new SlotUnavailableException();
         }
     }

@@ -32,7 +32,7 @@ public class BookingRepository {
         List<LockedSlot> slots = jdbcTemplate.query("""
                         SELECT slot_id, slot_date, start_time, is_booked
                         FROM availability_slots
-                        WHERE slot_id = ?
+                        WHERE slot_id = ? AND is_withdrawn = FALSE
                         FOR UPDATE
                         """,
                 (rs, rowNum) -> new LockedSlot(
@@ -61,7 +61,7 @@ public class BookingRepository {
                         WHERE a.appointment_id = ?
                           AND LOWER(u.email) = LOWER(?)
                           AND a.status = 'BOOKED'
-                          AND s.slot_date >= CURRENT_DATE
+                          AND (s.slot_date + s.start_time) > CURRENT_TIMESTAMP
                         FOR UPDATE OF a
                         """,
                 (rs, rowNum) -> new CancellableAppointment(
@@ -123,17 +123,17 @@ public class BookingRepository {
                   AND a.user_id = u.user_id
                   AND LOWER(u.email) = LOWER(?)
                   AND a.status = 'BOOKED'
-                  AND s.slot_date < CURRENT_DATE
+                  AND (s.slot_date + s.end_time) <= CURRENT_TIMESTAMP
                 """, customerEmail);
     }
 
     public List<AppointmentDTO> findUpcomingAppointments(String customerEmail) {
-        return findAppointments("a.status = 'BOOKED' AND s.slot_date >= CURRENT_DATE",
+        return findAppointments("a.status = 'BOOKED' AND (s.slot_date + s.start_time) > CURRENT_TIMESTAMP",
                 "s.slot_date, s.start_time", customerEmail);
     }
 
     public List<AppointmentDTO> findAppointmentHistory(String customerEmail) {
-        return findAppointments("(a.status IN ('CANCELLED', 'COMPLETED') OR s.slot_date < CURRENT_DATE)",
+        return findAppointments("(a.status IN ('CANCELLED', 'COMPLETED') OR (s.slot_date + s.end_time) <= CURRENT_TIMESTAMP)",
                 "s.slot_date DESC, s.start_time DESC", customerEmail);
     }
 
