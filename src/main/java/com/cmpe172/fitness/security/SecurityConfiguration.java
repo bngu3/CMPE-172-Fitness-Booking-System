@@ -20,6 +20,9 @@ public class SecurityConfiguration {
                                 "/error", "/css/**").permitAll()
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/provider/**").hasRole("PROVIDER")
+                        .requestMatchers("/api/agent/chat/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/agent/reminders/run").hasRole("PROVIDER")
+                        .requestMatchers("/api/agent/ask").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

@@ -40,6 +40,26 @@ volume preserves the database across container restarts. Run `docker compose dow
 to stop the containers without deleting data. `docker compose down -v` deletes
 the database volume.
 
+## AI features (Google AI Studio)
+The AI features use Spring AI with the Gemini Developer API, not Vertex AI.
+Create an API key in Google AI Studio and provide it as the `GEMINI_API_KEY`
+environment variable. For PowerShell, set it for the current terminal with
+`$env:GEMINI_API_KEY = "your-key"`; for Docker Compose, put
+`GEMINI_API_KEY=your-key` in the ignored local `.env` file. Never commit the
+key. The app config sets the API key property and Gemini model names, and does
+not configure a Vertex project ID or location. It uses `gemini-3.8-flash` for
+chat and `gemini-embedding-001` for the in-memory FAQ vector store.
+
+- `POST /api/agent/chat` (customer role): send `{"message":"Find the earliest yoga session this week and book it"}`. The assistant can search multiple dates and propose a booking, but the actual write requires a separate explicit `yes` confirmation. Cancellation follows the same confirmation flow. The conversation is scoped to the authenticated customer’s web session.
+- `POST /api/agent/chat/stream` (customer role): same conversation and write-confirmation behavior, streamed as server-sent events for reactive clients.
+- `POST /api/agent/ask` (authenticated): send `{"message":"What is the cancellation policy?"}` for policy answers grounded in the ingested `fitness-studio-faq.md` knowledge source.
+- `POST /api/agent/reminders/run?lookAheadDays=7` (provider role): manually scan upcoming bookings, have Gemini compose personalized reminders, and send them through the existing notification boundary. The scheduled job runs daily at 9:00 AM by default; override with `FITNESS_REMINDERS_CRON` (or `fitness.reminders.cron`).
+
+The key can be passed into the Docker Compose app service through the same
+`GEMINI_API_KEY` environment variable. AI calls require a configured key and
+internet access; the Gemini API free tier has Google's current quotas and
+model availability.
+
 ## Continuous integration
 The GitHub Actions workflow in `.github/workflows/ci.yml` runs on every push
 and pull request. It sets up Java 21, starts a temporary PostgreSQL test
@@ -64,6 +84,9 @@ workflow finishes and does not use the developer's local database.
 - `GET /customer/dashboard` - customer-only example page
 - `GET /provider/dashboard` - provider-only example page
 - `POST /internal/notifications` - mock notification-service endpoint called through an HTTP gateway
+- `POST /api/agent/chat` - customer conversational booking agent
+- `POST /api/agent/ask` - grounded studio policy Q&A
+- `POST /api/agent/reminders/run` - provider-triggered reminder job
 
 ## Login and roles
 - Login uses email and password; account records are loaded from PostgreSQL by

@@ -9,6 +9,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository layer: talks directly to the database via JdbcTemplate
@@ -58,6 +59,24 @@ public class SlotRepository {
                 "SELECT COUNT(*) FROM availability_slots s WHERE s.is_booked = FALSE AND s.is_withdrawn = FALSE AND (s.slot_date + s.start_time) > CURRENT_TIMESTAMP");
         appendFilters(sql, parameters, providerId, serviceId, date);
         return jdbcTemplate.queryForObject(sql.toString(), Integer.class, parameters.toArray());
+    }
+
+    public Optional<SlotDTO> findAvailableSlot(int slotId) {
+        List<SlotDTO> slots = jdbcTemplate.query("""
+                        SELECT s.slot_id, p.full_name AS provider_name, sv.name AS service_name,
+                               s.slot_date, s.start_time, s.end_time, sv.price
+                        FROM availability_slots s
+                        JOIN providers p ON p.provider_id = s.provider_id
+                        JOIN services sv ON sv.service_id = s.service_id
+                        WHERE s.slot_id = ? AND s.is_booked = FALSE AND s.is_withdrawn = FALSE
+                          AND (s.slot_date + s.start_time) > CURRENT_TIMESTAMP
+                        """,
+                (rs, rowNum) -> new SlotDTO(
+                        rs.getInt("slot_id"), rs.getString("provider_name"), rs.getString("service_name"),
+                        rs.getDate("slot_date").toLocalDate(), rs.getTime("start_time").toLocalTime(),
+                        rs.getTime("end_time").toLocalTime(), rs.getDouble("price")),
+                slotId);
+        return slots.stream().findFirst();
     }
 
     public List<FilterOption> findProviderOptions() {

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /** Applies availability filters and delegates SQL paging to the repository. */
 @Service
@@ -25,6 +26,10 @@ public class SlotService {
 
     public int countAvailableSlots(Integer providerId, Integer serviceId, LocalDate date) {
         return slotRepository.countAvailableSlots(providerId, serviceId, date);
+    }
+
+    public Optional<SlotDTO> findAvailableSlot(int slotId) {
+        return slotRepository.findAvailableSlot(slotId);
     }
 
     public List<FilterOption> getProviderOptions() {

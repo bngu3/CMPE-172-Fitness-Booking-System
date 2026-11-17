@@ -6,3 +6,6 @@ target/
 .project
 .settings/
 *.log
+.env
+.env.*
+!.env.example
