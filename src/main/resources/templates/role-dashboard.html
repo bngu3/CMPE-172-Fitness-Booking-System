@@ -13,6 +13,10 @@
     <a th:href="@{/provider/availability}">Manage availability</a> |
     <a th:href="@{/provider/appointments}">Booked appointments</a>
 </p>
+<p th:if="${roleLabel == 'Customer'}">
+    <a th:href="@{/customer/assistant}">AI fitness assistant</a> |
+    <a th:href="@{/customer/appointments}">My appointments</a>
+</p>
 <a th:href="@{/}">Home</a>
 <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
 </body>

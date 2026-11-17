@@ -46,7 +46,8 @@ Create an API key in Google AI Studio and provide it as the `GEMINI_API_KEY`
 environment variable. For PowerShell, set it for the current terminal with
 `$env:GEMINI_API_KEY = "your-key"`; for Docker Compose, put
 `GEMINI_API_KEY=your-key` in the ignored local `.env` file. Never commit the
-key. The app config sets the API key property and Gemini model names, and does
+key. The app supplies both Spring AI API-key properties from that same
+environment variable and sets the Gemini model names, and does
 not configure a Vertex project ID or location. It uses `gemini-3.8-flash` for
 chat and `gemini-embedding-001` for the in-memory FAQ vector store.
 
