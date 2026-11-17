@@ -72,6 +72,14 @@
         }
     });
 
+    const policyInput = document.getElementById('policy-question');
+    policyInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+            event.preventDefault();
+            document.getElementById('policy-form').requestSubmit();
+        }
+    });
+
     function addBubble(text, role) {
         const bubble = document.createElement('div');
         bubble.className = `bubble ${role}`;
@@ -95,6 +103,7 @@
             const response = await fetch('/api/agent/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+                signal: AbortSignal.timeout(90000),
                 body: JSON.stringify({ message })
             });
             if (!response.ok) throw new Error(await response.text() || `Request failed (${response.status})`);
@@ -102,7 +111,9 @@
             addBubble(result.reply, 'assistant');
             status.textContent = '';
         } catch (error) {
-            status.textContent = `Could not reach the assistant: ${error.message}`;
+            status.textContent = error.name === 'TimeoutError'
+                ? 'The assistant took too long to respond. Gemini may be busy; please try again shortly.'
+                : `Could not reach the assistant: ${error.message}`;
         } finally {
             button.disabled = false;
             input.focus();
@@ -123,13 +134,16 @@
             const response = await fetch('/api/agent/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+                signal: AbortSignal.timeout(90000),
                 body: JSON.stringify({ message: question })
             });
             if (!response.ok) throw new Error(await response.text() || `Request failed (${response.status})`);
             answer.textContent = await response.text();
             status.textContent = '';
         } catch (error) {
-            status.textContent = `Could not get an answer: ${error.message}`;
+            status.textContent = error.name === 'TimeoutError'
+                ? 'The policy assistant took too long to respond. Please try again shortly.'
+                : `Could not get an answer: ${error.message}`;
         } finally {
             button.disabled = false;
         }
