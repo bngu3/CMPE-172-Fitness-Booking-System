@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <title>Manage availability | Fitness Studio</title>
     <style>
         body { font: 16px system-ui, sans-serif; max-width: 1000px; margin: 5vh auto; padding: 0 1rem; color: #20242a; }
@@ -10,6 +12,8 @@
         label { display: grid; gap: .3rem; }
         select, input, button { font: inherit; padding: .55rem; }
         button { cursor: pointer; }
+        button:disabled { cursor: wait; opacity: .65; }
+        .reminder-demo { margin: 1rem 0; padding: 1rem; background: #f3f5f8; border-radius: 10px; }
         table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
         th, td { text-align: left; padding: .75rem .5rem; border-bottom: 1px solid #ddd; }
         a { color: #2457c5; }
@@ -20,6 +24,13 @@
 <h1>Manage availability</h1>
 <p role="status" th:if="${param.created}">Availability added.</p>
 <p role="status" th:if="${param.deleted}">Availability removed.</p>
+
+<section class="reminder-demo">
+    <h2>Appointment reminder demo</h2>
+    <p>Generate and send AI reminders for appointments in the next 7 days.</p>
+    <button id="run-reminders" type="button">Run reminders now</button>
+    <p id="reminder-result" role="status" aria-live="polite"></p>
+</section>
 
 <section>
     <h2>Add a slot</h2>
@@ -68,6 +79,30 @@
         </tbody>
     </table>
 </section>
+<script>
+    const runButton = document.getElementById('run-reminders');
+    const result = document.getElementById('reminder-result');
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+    runButton.addEventListener('click', async () => {
+        runButton.disabled = true;
+        result.textContent = 'Generating and sending reminders…';
+        try {
+            const response = await fetch('/api/agent/reminders/run?lookAheadDays=7', {
+                method: 'POST',
+                headers: { [csrfHeader]: csrfToken }
+            });
+            if (!response.ok) throw new Error(`Request failed (${response.status}). Please sign in as a provider and try again.`);
+            const summary = await response.json();
+            result.textContent = `Finished: ${summary.scanned} scanned, ${summary.sent} sent, ${summary.failed} failed.`;
+        } catch (error) {
+            result.textContent = error.message || 'Could not run reminders. Please try again.';
+        } finally {
+            runButton.disabled = false;
+        }
+    });
+</script>
 </body>
 </html>
 
